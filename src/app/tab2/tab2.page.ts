@@ -10,9 +10,16 @@ import {PhotoService} from '../services/photo.service'
 export class Tab2Page {
  // Para crear la accion de la camara
   constructor( public photoService: PhotoService){} 
+  async ngOnInit() {
+    await this.photoService.loadSaved();
+  }
+  
     addPhotoToGallery(){
       this.photoService.addNewToGallery();
     
   }
+ 
+  
 
 }
+
