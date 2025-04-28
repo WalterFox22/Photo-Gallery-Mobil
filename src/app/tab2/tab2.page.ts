@@ -8,7 +8,7 @@ import {PhotoService} from '../services/photo.service'
   standalone: false,
 })
 export class Tab2Page {
-
+ // Para crear la accion de la camara
   constructor( public photoService: PhotoService){} 
     addPhotoToGallery(){
       this.photoService.addNewToGallery();
