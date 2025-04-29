@@ -107,6 +107,25 @@ export class PhotoService {
     }
   }
 }
+
+// Eliminar foto
+
+async deletePhoto(photoToDelete: UserPhoto) {
+  if (this.platform.is('hybrid')) {
+    await Filesystem.deleteFile({
+      path: photoToDelete.filepath,
+      directory: Directory.Data,
+    });
+  }
+
+  this.photos = this.photos.filter(photo => photo.filepath !== photoToDelete.filepath);
+
+  await Preferences.set({
+    key: this.PHOTO_STORAGE,
+    value: JSON.stringify(this.photos),
+  });
+}
+
 }
 
 export interface UserPhoto {
