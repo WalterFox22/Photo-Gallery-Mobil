@@ -23,5 +23,13 @@
       <ion-icon name="camera"></ion-icon>
     </ion-fab-button>
   </ion-fab>
+
+  <!-- Botón adicional para foto con calidad del 50% -->
+<ion-fab vertical="bottom" horizontal="center" slot="fixed" style="margin-right: 16px;">
+  <ion-fab-button color="medium" (click)="takePhotoWithMediumQuality()">
+    <ion-icon name="camera-outline"></ion-icon>
+  </ion-fab-button>
+</ion-fab>
+
 </ion-content>
 

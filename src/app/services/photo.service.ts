@@ -107,6 +107,25 @@ export class PhotoService {
     }
   }
 }
+
+
+// FOTO CON EL 50% DE CALIDAD
+public async addPhotoWithMediumQuality() {
+  const capturedPhoto = await Camera.getPhoto({
+    resultType: CameraResultType.Uri,
+    source: CameraSource.Camera,
+    quality: 50,
+  });
+
+  const saveImageFile = await this.savePicture(capturedPhoto);
+  this.photos.unshift(saveImageFile);
+
+  await Preferences.set({
+    key: this.PHOTO_STORAGE,
+    value: JSON.stringify(this.photos),
+  });
+}
+
 }
 
 export interface UserPhoto {
