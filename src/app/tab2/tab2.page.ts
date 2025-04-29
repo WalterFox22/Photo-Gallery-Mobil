@@ -1,25 +1,20 @@
 import { Component } from '@angular/core';
-import {PhotoService} from '../services/photo.service'
+import { PhotoService } from '../services/photo.service';
 
 @Component({
   selector: 'app-tab2',
   templateUrl: 'tab2.page.html',
   styleUrls: ['tab2.page.scss'],
-  standalone: false,
+  standalone:false
 })
 export class Tab2Page {
- // Para crear la accion de la camara
-  constructor( public photoService: PhotoService){} 
+  constructor(public photoService: PhotoService) {}
+
   async ngOnInit() {
     await this.photoService.loadSaved();
   }
-  
-    addPhotoToGallery(){
-      this.photoService.addNewToGallery();
-    
+
+  addPhotoToGallery(tabDestino: string) {
+    this.photoService.addNewToGallery(tabDestino);
   }
- 
-  
-
 }
-

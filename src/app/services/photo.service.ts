@@ -5,13 +5,16 @@ import {
   CameraSource,
   Photo,
 } from '@capacitor/camera';
-import { WebView } from '@capacitor/core';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Preferences } from '@capacitor/preferences';
-import { Component } from '@angular/core';
-import { Capacitor } from '@capacitor/core';
 import { Platform } from '@ionic/angular';
+import { Capacitor } from '@capacitor/core';
 
+export interface UserPhoto {
+  filepath: string;
+  webviewPath?: string;
+  tab: string;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -22,30 +25,32 @@ export class PhotoService {
 
   constructor(private platform: Platform) {}
 
-  private async savePicture(photo:Photo){
+  private async savePicture(photo: Photo, selectedTab: string) {
     const base64Data = await this.readAsBase64(photo);
     const fileName = Date.now() + '.jpeg';
-  
+
     const savedFile = await Filesystem.writeFile({
       path: fileName,
       data: base64Data,
       directory: Directory.Data,
     });
-  
+
     if (this.platform.is('hybrid')) {
       return {
         filepath: savedFile.uri,
         webviewPath: Capacitor.convertFileSrc(savedFile.uri),
+        tab: selectedTab,
       };
     } else {
       return {
         filepath: fileName,
         webviewPath: photo.webPath,
+        tab: selectedTab,
       };
     }
   }
 
-  private async readAsBase64 (photo:Photo){
+  private async readAsBase64(photo: Photo) {
     if (this.platform.is('hybrid')) {
       const file = await Filesystem.readFile({
         path: photo.path!,
@@ -54,35 +59,30 @@ export class PhotoService {
     } else {
       const response = await fetch(photo.webPath!);
       const blob = await response.blob();
-      return await this.convertBlobToBase64(blob) as string;
+      return (await this.convertBlobToBase64(blob)) as string;
     }
   }
-  
-  private convertBlobToBase64 = (blob: Blob) => new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onerror = reject;
-    reader.onload = () => {
+
+  private convertBlobToBase64 = (blob: Blob) =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = reject;
+      reader.onload = () => {
         resolve(reader.result);
-    };
-    reader.readAsDataURL(blob);
-  });
+      };
+      reader.readAsDataURL(blob);
+    });
 
-
-
-
-
-  public async addNewToGallery() {
+  public async addNewToGallery(selectedTab: string) {
     const capturedPhoto = await Camera.getPhoto({
       resultType: CameraResultType.Uri,
       source: CameraSource.Camera,
       quality: 100,
     });
 
-    // Para guarda la imagen
-     const saveImageFile= await this.savePicture(capturedPhoto)
-     this.photos.unshift(saveImageFile)
+    const saveImageFile = await this.savePicture(capturedPhoto, selectedTab);
+    this.photos.unshift(saveImageFile);
 
-     // Guardar en Preferences
     await Preferences.set({
       key: this.PHOTO_STORAGE,
       value: JSON.stringify(this.photos),
@@ -91,25 +91,24 @@ export class PhotoService {
 
   public async loadSaved() {
     const { value } = await Preferences.get({ key: this.PHOTO_STORAGE });
-  this.photos = (value ? JSON.parse(value) : []) as UserPhoto[];
+    this.photos = (value ? JSON.parse(value) : []) as UserPhoto[];
 
-  if (!this.platform.is('hybrid')) {
-    for (let photo of this.photos) {
-      try {
-        const readFile = await Filesystem.readFile({
-          path: photo.filepath,
-          directory: Directory.Data,
-        });
-        photo.webviewPath = `data:image/jpeg;base64,${readFile.data}`;
-      } catch (error) {
-        console.error('Error reading file in web', error);
+    if (!this.platform.is('hybrid')) {
+      for (let photo of this.photos) {
+        try {
+          const readFile = await Filesystem.readFile({
+            path: photo.filepath,
+            directory: Directory.Data,
+          });
+          photo.webviewPath = `data:image/jpeg;base64,${readFile.data}`;
+        } catch (error) {
+          console.error('Error loading photo:', error);
+        }
       }
     }
   }
-}
-}
 
-export interface UserPhoto {
-  filepath: string;
-  webviewPath?: string;
+  public getPhotosByTab(tabName: string): UserPhoto[] {
+    return this.photos.filter(photo => photo.tab === tabName);
+  }
 }
