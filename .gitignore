@@ -12,6 +12,11 @@ $RECYCLE.BIN/
 *.log
 log.txt
 
+#Android
+android/.gradle/
+android/.idea/
+android/build/
+android/app/build/
 
 /.sourcemaps
 /.versions
