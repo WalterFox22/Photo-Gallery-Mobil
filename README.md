@@ -6,6 +6,7 @@ Este proyecto se esta trabajado en el repositorio que se trabajo en el tarea des
 
 
 
+
 ## Splash Screens y Icono
 
 Este apartado es del trabajo dejado para la creacion del Splash Screens y Icons personalizados el cual lo realizó mi persona **Walter Cobacango**.
